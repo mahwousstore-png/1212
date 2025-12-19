@@ -35,9 +35,9 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  amount: z
+  amount: z.coerce
     .number({ message: "يجب إدخال رقم صحيح" })
-    .refine(val => !isNaN(val) && val !== 0, {
+    .refine(val => val !== 0, {
       message: "المبلغ يجب أن يكون مختلف عن صفر (يمكن إدخال قيم موجبة أو سالبة)",
     }),
   type: z.string().min(1, "نوع المصروف مطلوب"),
@@ -59,7 +59,7 @@ export function AddExpenseDialog({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: undefined as any, // Will be set by user input
+      amount: 0,
       type: "work_expense",
       date: new Date().toISOString().split("T")[0],
       notes: "",
@@ -102,12 +102,7 @@ export function AddExpenseDialog({
       await dataService.addExpense(newExpense);
       toast.success("تم إضافة العملية بنجاح");
       setOpen(false);
-      form.reset({
-        amount: undefined as any,
-        type: "work_expense",
-        date: new Date().toISOString().split("T")[0],
-        notes: "",
-      });
+      form.reset();
       onSuccess();
     } catch {
       toast.error("حدث خطأ أثناء إضافة العملية");
@@ -169,11 +164,11 @@ export function AddExpenseDialog({
                       type="number"
                       step="0.01"
                       placeholder="أدخل المبلغ (موجب أو سالب)"
-                      value={typeof field.value === 'number' ? field.value : ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        field.onChange(value === "" ? undefined : Number(value));
-                      }}
+                      value={field.value as number}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
                     />
                   </FormControl>
                   <FormMessage />
