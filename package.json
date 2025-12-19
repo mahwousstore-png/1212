@@ -107,7 +107,7 @@
     },
     "overrides": {
       "tailwindcss>nanoid": "3.3.7",
-      "get-intrinsic": "^1.2.4"
+      "get-intrinsic": "^1.2.5"
     }
   }
 }
