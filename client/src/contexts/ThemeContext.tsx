@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark" | "gold" | "black";
+type Theme = "light" | "dark" | "gold" | "black" | "gold-black";
 
 interface ThemeContextType {
   theme: Theme;
@@ -33,7 +33,7 @@ export function ThemeProvider({
   useEffect(() => {
     const root = document.documentElement;
     // Remove all theme classes
-    root.classList.remove("light", "dark", "gold", "black");
+    root.classList.remove("light", "dark", "gold", "black", "gold-black");
     // Add current theme class
     root.classList.add(theme);
 
@@ -47,7 +47,8 @@ export function ThemeProvider({
         setThemeState(prev => {
           switch (prev) {
             case "light": return "dark";
-            case "dark": return "gold";
+            case "dark": return "gold-black";
+            case "gold-black": return "gold";
             case "gold": return "black";
             case "black": return "light";
             default: return "light";

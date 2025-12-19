@@ -185,6 +185,43 @@
   --sidebar-ring: oklch(0.9 0.02 0);
 }
 
+/* Gold-Black Luxury Theme */
+.gold-black {
+  /* Gold accents on black background */
+  --primary: oklch(0.75 0.15 85); /* Rich gold */
+  --primary-foreground: oklch(0.08 0.005 0); /* Black text on gold */
+  --sidebar-primary: oklch(0.7 0.12 85);
+  --sidebar-primary-foreground: oklch(0.08 0.005 0);
+  --background: oklch(0.08 0.005 0); /* Deep black background */
+  --foreground: oklch(0.95 0.005 0); /* Light text */
+  --card: oklch(0.12 0.01 0); /* Dark cards */
+  --card-foreground: oklch(0.95 0.005 0);
+  --popover: oklch(0.12 0.01 0);
+  --popover-foreground: oklch(0.95 0.005 0);
+  --secondary: oklch(0.18 0.02 0); /* Dark gray */
+  --secondary-foreground: oklch(0.9 0.01 0);
+  --muted: oklch(0.15 0.015 0);
+  --muted-foreground: oklch(0.7 0.01 0);
+  --accent: oklch(0.75 0.15 85); /* Gold accent */
+  --accent-foreground: oklch(0.08 0.005 0);
+  --destructive: oklch(0.7 0.15 15);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.25 0.03 0); /* Subtle borders */
+  --input: oklch(0.2 0.025 0);
+  --ring: oklch(0.75 0.15 85); /* Gold focus ring */
+  --chart-1: oklch(0.75 0.15 85); /* Gold charts */
+  --chart-2: oklch(0.7 0.12 85);
+  --chart-3: oklch(0.65 0.18 85);
+  --chart-4: oklch(0.6 0.2 85);
+  --chart-5: oklch(0.55 0.22 85);
+  --sidebar: oklch(0.1 0.008 0); /* Black sidebar */
+  --sidebar-foreground: oklch(0.95 0.005 0);
+  --sidebar-accent: oklch(0.75 0.15 85); /* Gold sidebar accent */
+  --sidebar-accent-foreground: oklch(0.08 0.005 0);
+  --sidebar-border: oklch(0.25 0.03 0);
+  --sidebar-ring: oklch(0.75 0.15 85);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
