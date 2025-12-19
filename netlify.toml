@@ -1,6 +1,6 @@
 [build]
 command = "npx vite build"
-publish = "/home/project/dist/public"
+publish = "dist"
 
 [[redirects]]
 from = "/*"
