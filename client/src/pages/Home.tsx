@@ -138,7 +138,7 @@ export default function Home() {
 
           {/* Employee Stats */}
           {selectedEmployee && (
-            <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {/* Employee Card */}
               <Card className="col-span-2 sm:col-span-1 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 p-3 sm:p-6">
@@ -183,7 +183,7 @@ export default function Home() {
                   <CardTitle className={`text-xs sm:text-sm font-semibold ${pendingExpenses.length > 0 ? 'text-yellow-900 dark:text-yellow-100' : 'text-gray-900 dark:text-gray-100'}`}>
                     بانتظار التأكيد
                   </CardTitle>
-                  <AlertCircle className={`h-4 w-4 sm:h-5 sm:w-5 ${pendingExpenses.length > 0 ? 'text-yellow-600 dark:text-yellow-400 animate-pulse' : 'text-gray-400'}`} />
+                  <AlertCircle className={`h-4 w-4 sm:h-5 sm:w-5 ${pendingExpenses.length > 0 ? 'text-yellow-600 dark:text-yellow-400 animate-pulse motion-reduce:animate-none' : 'text-gray-400'}`} />
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6 pt-0">
                   <div className={`text-lg sm:text-2xl font-bold mb-1 ${pendingExpenses.length > 0 ? 'text-yellow-900 dark:text-yellow-100' : 'text-gray-900 dark:text-gray-100'}`}>
