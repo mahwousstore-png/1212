@@ -1,38 +1,39 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Wallet } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex">
-          <a className="mr-6 flex items-center space-x-2" href="/">
-            <span className="hidden font-bold sm:inline-block">
+    <header className="border-b bg-white dark:bg-gray-800 shadow-sm" dir="rtl">
+      <div className="container flex h-16 items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               نظام إدارة مصروفات الموظفين
-            </span>
+            </h1>
           </a>
         </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* يمكن إضافة شريط بحث هنا لاحقاً */}
-          </div>
-          <nav className="flex items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              title="تبديل السمة"
-            >
-              {theme === "light" ? (
-                <Moon className="h-4 w-4" />
-              ) : (
-                <Sun className="h-4 w-4" />
-              )}
-            </Button>
-          </nav>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-muted-foreground hidden sm:block">
+            مرحباً بك في لوحة التحكم
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            title="تبديل السمة"
+          >
+            {theme === "light" ? (
+              <Moon className="h-4 w-4" />
+            ) : (
+              <Sun className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
     </header>

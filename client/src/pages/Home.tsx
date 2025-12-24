@@ -87,22 +87,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir="rtl">
-      <header className="border-b bg-white dark:bg-gray-800 shadow-sm">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              نظام إدارة مصروفات الموظفين
-            </h1>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            مرحباً بك في لوحة التحكم
-          </div>
-        </div>
-      </header>
-
       <main className="flex-1 container px-4 py-8">
         <div className="space-y-8">
           {/* Employee Selection */}
