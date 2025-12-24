@@ -1,9 +1,27 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Sparkles, Circle } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
+
+  // Get appropriate icon and label for current theme
+  const getThemeIcon = () => {
+    switch (theme) {
+      case "light":
+        return { icon: <Moon className="h-4 w-4" />, label: "تبديل إلى الوضع الداكن" };
+      case "dark":
+        return { icon: <Sparkles className="h-4 w-4" />, label: "تبديل إلى الوضع الذهبي" };
+      case "gold":
+        return { icon: <Circle className="h-4 w-4 fill-current" />, label: "تبديل إلى الوضع الأسود" };
+      case "black":
+        return { icon: <Sun className="h-4 w-4" />, label: "تبديل إلى الوضع الفاتح" };
+      default:
+        return { icon: <Moon className="h-4 w-4" />, label: "تبديل السمة" };
+    }
+  };
+
+  const { icon, label } = getThemeIcon();
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -24,13 +42,10 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              title="تبديل السمة"
+              title={label}
+              aria-label={label}
             >
-              {theme === "light" ? (
-                <Moon className="h-4 w-4" />
-              ) : (
-                <Sun className="h-4 w-4" />
-              )}
+              {icon}
             </Button>
           </nav>
         </div>

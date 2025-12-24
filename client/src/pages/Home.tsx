@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { dataService } from "@/lib/data-service";
 import { Employee, Expense } from "@/types";
-import { Users, Wallet } from "lucide-react";
+import { Users, Wallet, Clock, CheckCircle2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function Home() {
@@ -68,6 +68,16 @@ export default function Home() {
     if (!selectedEmployeeId) return expenses;
     return expenses.filter((e) => e.employeeId === selectedEmployeeId);
   }, [expenses, selectedEmployeeId]);
+
+  // Memoize pending expenses count
+  const pendingExpensesCount = useMemo(() => {
+    return filteredExpenses.filter((e) => e.status === "pending").length;
+  }, [filteredExpenses]);
+
+  // Memoize confirmed (paid) expenses count
+  const confirmedExpensesCount = useMemo(() => {
+    return filteredExpenses.filter((e) => e.status === "paid").length;
+  }, [filteredExpenses]);
 
   if (loading) {
     return (
@@ -142,7 +152,7 @@ export default function Home() {
 
           {/* Employee Stats */}
           {selectedEmployee && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                   <CardTitle className="text-sm font-semibold text-blue-900 dark:text-blue-100">
@@ -151,10 +161,10 @@ export default function Home() {
                   <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-1">
+                  <div className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-1 truncate" title={selectedEmployee.name}>
                     {selectedEmployee.name}
                   </div>
-                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                  <p className="text-sm text-blue-700 dark:text-blue-300 truncate" title={selectedEmployee.role}>
                     {selectedEmployee.role}
                   </p>
                 </CardContent>
@@ -194,6 +204,40 @@ export default function Home() {
                   </div>
                   <p className="text-sm text-purple-700 dark:text-purple-300">
                     عدد العمليات المسجلة
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-semibold text-yellow-900 dark:text-yellow-100">
+                    العمليات المعلقة
+                  </CardTitle>
+                  <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100 mb-1">
+                    {pendingExpensesCount}
+                  </div>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                    بانتظار التأكيد
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                    العمليات المكتملة
+                  </CardTitle>
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 mb-1">
+                    {confirmedExpensesCount}
+                  </div>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                    تم التأكيد والاكتمال
                   </p>
                 </CardContent>
               </Card>
