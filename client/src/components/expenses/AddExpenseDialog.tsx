@@ -35,7 +35,11 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  amount: z.coerce.number().refine(val => val !== 0, "المبلغ مطلوب ويجب أن يكون مختلف عن صفر"),
+  amount: z.coerce
+    .number({ message: "يجب إدخال رقم صحيح" })
+    .refine(val => val !== 0, {
+      message: "المبلغ يجب أن يكون مختلف عن صفر (يمكن إدخال قيم موجبة أو سالبة)",
+    }),
   type: z.string().min(1, "نوع المصروف مطلوب"),
   date: z.string().min(1, "التاريخ مطلوب"),
   notes: z.string().optional(),
@@ -55,7 +59,7 @@ export function AddExpenseDialog({
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 0, // Valid number for form validation
+      amount: 0,
       type: "work_expense",
       date: new Date().toISOString().split("T")[0],
       notes: "",
@@ -69,14 +73,14 @@ export function AddExpenseDialog({
 
       // Special handling for custody_payment (صرف عهدة)
       // If it's custody_payment, treat it as a deduction (negative)
+      // Users can enter positive amounts, they will be converted to negative
       if (values.type === "custody_payment") {
         finalAmount = -Math.abs(values.amount);
       }
 
-      // For Abu Tamim custody operations, ensure it's recorded properly
-      const isAbuTamimOperation = values.notes?.includes("Abu Tamim") ||
-                                  values.notes?.includes("أبو تميم") ||
-                                  employeeId === "abu_tamim";
+      // For Abu Tamim custody operations
+      // Check if this is for Abu Tamim employee
+      const isAbuTamimOperation = employeeId === "abu_tamim";
 
       const newExpense: Omit<Expense, "id" | "createdAt"> = {
         confirmedByEmployee: false,
@@ -88,7 +92,7 @@ export function AddExpenseDialog({
         month: values.date.substring(0, 7),
         paymentMethod: "cash",
         status: "pending",
-        notes: isAbuTamimOperation
+        notes: isAbuTamimOperation && values.type === "custody_payment"
           ? `${values.notes || ""} [Source: Abu Tamim Custody]`.trim()
           : values.notes,
         createdBy: "employee", // Default, will be overridden by service based on actual user
@@ -122,7 +126,7 @@ export function AddExpenseDialog({
         <DialogHeader>
           <DialogTitle>إضافة عملية جديدة</DialogTitle>
           <DialogDescription>
-            أدخل تفاصيل العملية المالية (مصروفات أو صرف عهدة).
+            أدخل تفاصيل العملية المالية. لصرف العهدة، أدخل المبلغ وسيتم خصمه تلقائياً من رصيد العهدة.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -164,8 +168,12 @@ export function AddExpenseDialog({
                     <Input
                       type="number"
                       step="0.01"
-                      value={(field.value as number) || ""}
-                      onChange={(e) => field.onChange(e.target.value === "" ? undefined : Number(e.target.value))}
+                      placeholder="أدخل المبلغ (موجب أو سالب)"
+                      value={field.value as number}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      ref={field.ref}
                     />
                   </FormControl>
                   <FormMessage />
