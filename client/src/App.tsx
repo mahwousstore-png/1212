@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { Header } from "./components/Header";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
@@ -30,8 +31,13 @@ function App() {
         switchable
       >
         <TooltipProvider>
+          <div className="min-h-screen bg-background">
+            <Header />
+            <main>
+              <Router />
+            </main>
+          </div>
           <Toaster />
-          <Router />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

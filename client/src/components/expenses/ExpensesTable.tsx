@@ -46,6 +46,16 @@ export function ExpensesTable({
     );
   };
 
+  const handleConfirm = async (id: string) => {
+    const success = await dataService.confirmExpense(id);
+    if (success) {
+      toast.success("تم تأكيد الاستلام بنجاح");
+      onUpdate();
+    } else {
+      toast.error("حدث خطأ أثناء التأكيد");
+    }
+  };
+
   const handleReject = async (id: string) => {
     if (confirm("هل أنت متأكد من رفض هذا المصروف؟")) {
       const success = await dataService.rejectExpense(id);
