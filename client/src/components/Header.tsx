@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Sparkles, Circle } from "lucide-react";
+import { Moon, Sun, Sparkles, Palette } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export function Header() {
@@ -13,7 +13,7 @@ export function Header() {
       case "dark":
         return { icon: <Sparkles className="h-4 w-4" />, label: "تبديل إلى الوضع الذهبي" };
       case "gold":
-        return { icon: <Circle className="h-4 w-4 fill-current" />, label: "تبديل إلى الوضع الأسود" };
+        return { icon: <Palette className="h-4 w-4" />, label: "تبديل إلى الوضع الأسود" };
       case "black":
         return { icon: <Sun className="h-4 w-4" />, label: "تبديل إلى الوضع الفاتح" };
       default:
