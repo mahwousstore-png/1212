@@ -46,6 +46,23 @@ export interface Expense {
   createdByName?: string;
 }
 
+// Custody Confirmation Request - for confirming custody transfers between employees
+export type CustodyConfirmationStatus = "pending" | "confirmed" | "rejected";
+
+export interface CustodyConfirmationRequest {
+  id: string;
+  fromEmployeeId: string;
+  fromEmployeeName: string;
+  toEmployeeId: string;
+  toEmployeeName: string;
+  amount: number;
+  requestedAt: string;
+  confirmedAt?: string;
+  status: CustodyConfirmationStatus;
+  notes?: string;
+  requestedBy: "admin" | "employee";
+}
+
 export const EXPENSE_TYPES: {
   value: ExpenseType;
   label: string;
@@ -79,5 +96,11 @@ export const EXPENSE_TYPES: {
 export const PAYMENT_STATUSES = [
   { value: "pending", label: "معلق", color: "bg-yellow-100 text-yellow-800" },
   { value: "paid", label: "مكتمل", color: "bg-green-100 text-green-800" },
+  { value: "rejected", label: "مرفوض", color: "bg-red-100 text-red-800" },
+];
+
+export const CUSTODY_CONFIRMATION_STATUSES = [
+  { value: "pending", label: "في انتظار التأكيد", color: "bg-amber-100 text-amber-800" },
+  { value: "confirmed", label: "تم التأكيد", color: "bg-emerald-100 text-emerald-800" },
   { value: "rejected", label: "مرفوض", color: "bg-red-100 text-red-800" },
 ];

@@ -1,4 +1,6 @@
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
+import { CustodyConfirmationDialog } from "@/components/expenses/CustodyConfirmationDialog";
+import { CustodyConfirmationTable } from "@/components/expenses/CustodyConfirmationTable";
 import { ExpensesTable } from "@/components/expenses/ExpensesTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -8,25 +10,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataService } from "@/lib/data-service";
-import { Employee, Expense } from "@/types";
-import { Users, Wallet } from "lucide-react";
+import { CustodyConfirmationRequest, Employee, Expense } from "@/types";
+import { ArrowLeftRight, Users, Wallet } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function Home() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [custodyConfirmations, setCustodyConfirmations] = useState<CustodyConfirmationRequest[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
   const loadData = useCallback(async () => {
-    const [employeesData, expensesData] = await Promise.all([
+    const [employeesData, expensesData, confirmationsData] = await Promise.all([
       dataService.getEmployees(),
       dataService.getExpenses(),
+      dataService.getCustodyConfirmations(),
     ]);
     setEmployees(employeesData);
     setExpenses(expensesData);
+    setCustodyConfirmations(confirmationsData);
     return employeesData;
   }, []);
 
@@ -68,6 +74,22 @@ export default function Home() {
     if (!selectedEmployeeId) return expenses;
     return expenses.filter((e) => e.employeeId === selectedEmployeeId);
   }, [expenses, selectedEmployeeId]);
+
+  // Memoize filtered custody confirmations - show confirmations where user is sender or receiver
+  const filteredCustodyConfirmations = useMemo(() => {
+    if (!selectedEmployeeId) return custodyConfirmations;
+    return custodyConfirmations.filter(
+      (c) => c.fromEmployeeId === selectedEmployeeId || c.toEmployeeId === selectedEmployeeId
+    );
+  }, [custodyConfirmations, selectedEmployeeId]);
+
+  // Count pending confirmations for the current user
+  const pendingConfirmationsCount = useMemo(() => {
+    if (!selectedEmployeeId) return 0;
+    return custodyConfirmations.filter(
+      (c) => c.toEmployeeId === selectedEmployeeId && c.status === "pending"
+    ).length;
+  }, [custodyConfirmations, selectedEmployeeId]);
 
   if (loading) {
     return (
@@ -132,10 +154,16 @@ export default function Home() {
                 </Select>
               </div>
               {selectedEmployeeId && (
-                <AddExpenseDialog
-                  employeeId={selectedEmployeeId}
-                  onSuccess={handleRefresh}
-                />
+                <div className="flex items-center gap-2">
+                  <CustodyConfirmationDialog
+                    fromEmployeeId={selectedEmployeeId}
+                    onSuccess={handleRefresh}
+                  />
+                  <AddExpenseDialog
+                    employeeId={selectedEmployeeId}
+                    onSuccess={handleRefresh}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -197,30 +225,95 @@ export default function Home() {
                   </p>
                 </CardContent>
               </Card>
+
+              {/* Pending Custody Confirmations Card */}
+              {pendingConfirmationsCount > 0 && (
+                <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-amber-200 dark:border-amber-800">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                      طلبات عهدة معلقة
+                    </CardTitle>
+                    <ArrowLeftRight className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-amber-900 dark:text-amber-100 mb-1">
+                      {pendingConfirmationsCount}
+                    </div>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      طلبات بانتظار التأكيد
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 
-          {/* Expenses Table */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border overflow-hidden">
-            <div className="p-6 border-b">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">📊</span>
+          {/* Tabs for Expenses and Custody Confirmations */}
+          <Tabs defaultValue="expenses" className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2 mb-4">
+              <TabsTrigger value="expenses" className="gap-2">
+                <Wallet className="h-4 w-4" />
+                العمليات المالية
+              </TabsTrigger>
+              <TabsTrigger value="custody" className="gap-2 relative">
+                <ArrowLeftRight className="h-4 w-4" />
+                تأكيد العهدة
+                {pendingConfirmationsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-500 text-xs text-white flex items-center justify-center">
+                    {pendingConfirmationsCount}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="expenses">
+              {/* Expenses Table */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border overflow-hidden">
+                <div className="p-6 border-b">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+                      <Wallet className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    سجل العمليات المالية
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    جميع العمليات المالية المسجلة للموظف المحدد
+                  </p>
                 </div>
-                سجل العمليات المالية
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                جميع العمليات المالية المسجلة للموظف المحدد
-              </p>
-            </div>
-            <div className="p-6">
-              <ExpensesTable
-                expenses={filteredExpenses}
-                currentUserId={selectedEmployeeId}
-                onUpdate={handleRefresh}
-              />
-            </div>
-          </div>
+                <div className="p-6">
+                  <ExpensesTable
+                    expenses={filteredExpenses}
+                    currentUserId={selectedEmployeeId}
+                    onUpdate={handleRefresh}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="custody">
+              {/* Custody Confirmation Table */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border overflow-hidden">
+                <div className="p-6 border-b">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+                      <ArrowLeftRight className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    طلبات تأكيد العهدة
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    طلبات تحويل العهدة بين الموظفين - يتم التحويل بعد تأكيد الموظف المستلم
+                  </p>
+                </div>
+                <div className="p-6">
+                  <CustodyConfirmationTable
+                    confirmations={filteredCustodyConfirmations}
+                    currentUserId={selectedEmployeeId}
+                    onUpdate={handleRefresh}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
