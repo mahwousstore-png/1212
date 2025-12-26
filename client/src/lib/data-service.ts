@@ -1,10 +1,11 @@
-import { Employee, Expense } from "@/types";
+import { CustodyConfirmationRequest, Employee, Expense } from "@/types";
 import { MOCK_EMPLOYEES } from "./mock-data";
 
 // LocalStorage keys
 const STORAGE_KEYS = {
   EXPENSES: "app_expenses",
   EMPLOYEES: "app_employees",
+  CUSTODY_CONFIRMATIONS: "app_custody_confirmations",
 };
 
 // Helper to simulate delay
@@ -166,6 +167,116 @@ async function deleteExpense(id: string): Promise<boolean> {
   }
 }
 
+// ==================== Custody Confirmation Functions ====================
+
+// Fetch custody confirmation requests from LocalStorage
+async function fetchCustodyConfirmations(): Promise<CustodyConfirmationRequest[]> {
+  await delay(300);
+  try {
+    const confirmationsStr = localStorage.getItem(STORAGE_KEYS.CUSTODY_CONFIRMATIONS);
+    return confirmationsStr ? JSON.parse(confirmationsStr) : [];
+  } catch (err) {
+    console.error("Error fetching custody confirmations:", err);
+    return [];
+  }
+}
+
+// Create a new custody confirmation request
+async function createCustodyConfirmationRequest(
+  request: Omit<CustodyConfirmationRequest, "id" | "requestedAt" | "status">
+): Promise<CustodyConfirmationRequest | null> {
+  await delay(300);
+  try {
+    const confirmations = await fetchCustodyConfirmations();
+    const employees = await fetchEmployees();
+
+    // Get employee names
+    const fromEmployee = employees.find(e => e.id === request.fromEmployeeId);
+    const toEmployee = employees.find(e => e.id === request.toEmployeeId);
+
+    const newRequest: CustodyConfirmationRequest = {
+      ...request,
+      id: Math.random().toString(36).substr(2, 9),
+      fromEmployeeName: fromEmployee?.name || "غير معروف",
+      toEmployeeName: toEmployee?.name || "غير معروف",
+      requestedAt: new Date().toISOString(),
+      status: "pending",
+    };
+
+    confirmations.unshift(newRequest);
+    localStorage.setItem(STORAGE_KEYS.CUSTODY_CONFIRMATIONS, JSON.stringify(confirmations));
+
+    return newRequest;
+  } catch (err) {
+    console.error("Error creating custody confirmation request:", err);
+    return null;
+  }
+}
+
+// Confirm a custody confirmation request (by the receiving employee)
+async function confirmCustodyRequest(id: string): Promise<boolean> {
+  await delay(300);
+  try {
+    const confirmations = await fetchCustodyConfirmations();
+    const index = confirmations.findIndex(c => c.id === id);
+
+    if (index >= 0) {
+      const request = confirmations[index];
+
+      // Update request status
+      confirmations[index].status = "confirmed";
+      confirmations[index].confirmedAt = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEYS.CUSTODY_CONFIRMATIONS, JSON.stringify(confirmations));
+
+      // Transfer the custody balance
+      // Deduct from sender
+      await updateEmployeeBalance(request.fromEmployeeId, -request.amount);
+      // Add to receiver
+      await updateEmployeeBalance(request.toEmployeeId, request.amount);
+
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error("Error confirming custody request:", err);
+    return false;
+  }
+}
+
+// Reject a custody confirmation request
+async function rejectCustodyRequest(id: string): Promise<boolean> {
+  await delay(300);
+  try {
+    const confirmations = await fetchCustodyConfirmations();
+    const index = confirmations.findIndex(c => c.id === id);
+
+    if (index >= 0) {
+      confirmations[index].status = "rejected";
+      confirmations[index].confirmedAt = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEYS.CUSTODY_CONFIRMATIONS, JSON.stringify(confirmations));
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error("Error rejecting custody request:", err);
+    return false;
+  }
+}
+
+// Delete a custody confirmation request
+async function deleteCustodyRequest(id: string): Promise<boolean> {
+  await delay(300);
+  try {
+    const confirmations = await fetchCustodyConfirmations();
+    const newConfirmations = confirmations.filter(c => c.id !== id);
+    localStorage.setItem(STORAGE_KEYS.CUSTODY_CONFIRMATIONS, JSON.stringify(newConfirmations));
+    return true;
+  } catch (err) {
+    console.error("Error deleting custody request:", err);
+    return false;
+  }
+}
+
 export const dataService = {
   getExpenses: fetchExpenses,
   getEmployees: fetchEmployees,
@@ -173,4 +284,10 @@ export const dataService = {
   confirmExpense,
   rejectExpense,
   deleteExpense,
+  // Custody confirmation functions
+  getCustodyConfirmations: fetchCustodyConfirmations,
+  createCustodyConfirmationRequest,
+  confirmCustodyRequest,
+  rejectCustodyRequest,
+  deleteCustodyRequest,
 };
