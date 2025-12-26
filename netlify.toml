@@ -1,6 +1,6 @@
 [build]
-command = "npx vite build"
-publish = "/home/project/dist/public"
+command = "npm install -g pnpm@10.4.1 && pnpm install && pnpm build"
+publish = "dist/public"
 
 [[redirects]]
 from = "/*"
