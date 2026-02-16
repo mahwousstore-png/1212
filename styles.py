@@ -320,6 +320,7 @@ ICONS = {
     "time": "⏱️",
     "check": "✅",
     "warning": "⚠️",
+    "info": "ℹ️",
     "star": "⭐",
     "fire": "🔥",
     "rocket": "🚀",
